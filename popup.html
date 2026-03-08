@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StaticMind</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #000000;
+  --surface: #080608;
+  --border: rgba(185, 209, 235, 0.12);
+  --text: #e8e4df;
+  --muted: #6a6560;
+  --tw-start: #B9D1EB;
+  --tw-end: #F876DE;
+}
+
+html {
+  width: 420px;
+  min-height: 560px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+  font-weight: 700;
+  font-size: 23px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  padding: 32px 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wordmark {
+  font-size: 15px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--tw-start), var(--tw-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 7px;
+  display: inline-block;
+}
+
+.wordmark::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  right: -10%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--tw-start), var(--tw-end), transparent);
+  border-radius: 2px;
+  animation: glowLine 3s ease-in-out infinite;
+}
+
+@keyframes glowLine {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Sections */
+.section-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* API Key */
+.key-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.key-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(185,209,235,0.25);
+  padding: 8px 0;
+  color: #fff;
+  font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+  font-weight: 700;
+  font-size: 23px;
+  outline: none;
+  transition: border-color 0.3s;
+  min-width: 0;
+}
+
+.key-input:focus { border-bottom-color: var(--tw-start); }
+.key-input::placeholder { color: rgba(106,101,96,0.7); font-size: 18px; }
+
+.save-btn {
+  background: linear-gradient(90deg, var(--tw-start), var(--tw-end));
+  border: none;
+  border-radius: 2px;
+  padding: 10px 20px;
+  font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+  font-weight: 700;
+  font-size: 23px;
+  color: #000;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.save-btn:hover { opacity: 0.85; }
+
+.key-saved {
+  font-size: 13px;
+  color: var(--tw-start);
+  letter-spacing: 1px;
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.key-saved.show { opacity: 1; }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* Add site */
+.add-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.site-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(185,209,235,0.25);
+  padding: 8px 0;
+  color: #fff;
+  font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+  font-weight: 700;
+  font-size: 23px;
+  outline: none;
+  transition: border-color 0.3s;
+  min-width: 0;
+}
+
+.site-input:focus { border-bottom-color: var(--tw-start); }
+.site-input::placeholder { color: rgba(106,101,96,0.7); font-size: 18px; }
+
+.add-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--tw-start), var(--tw-end));
+  border: none;
+  cursor: pointer;
+  font-size: 26px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.15s;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.add-btn:hover { opacity: 0.85; transform: scale(1.08); }
+
+/* Sites list */
+.sites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.sites-list::-webkit-scrollbar { width: 3px; }
+.sites-list::-webkit-scrollbar-thumb { background: rgba(185,209,235,0.2); border-radius: 2px; }
+
+.site-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(8,6,10,0.8);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  animation: rowIn 0.3s ease both;
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.site-name {
+  flex: 1;
+  font-size: 23px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Full Block toggle */
+.toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.toggle-label {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+.toggle {
+  width: 40px;
+  height: 22px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  border: 1px solid rgba(185,209,235,0.15);
+  flex-shrink: 0;
+}
+
+.toggle.on {
+  background: linear-gradient(90deg, var(--tw-start), var(--tw-end));
+  border-color: transparent;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.toggle.on .toggle-knob { transform: translateX(18px); }
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: rgba(106,101,96,0.6);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.remove-btn:hover { color: #F876DE; }
+
+.empty-state {
+  font-size: 23px;
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 0;
+}
+</style>
+</head>
+<body>
+
+<canvas id="popup-canvas"></canvas>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="wordmark">StaticMind</div>
+  </div>
+
+  <!-- API Key -->
+  <div class="section">
+    <div class="section-label">Anthropic API Key</div>
+    <div class="key-input-row">
+      <input class="key-input" type="password" id="key-input" placeholder="sk-ant-..."/>
+      <button class="save-btn" onclick="saveKey()">Save</button>
+    </div>
+    <div class="key-saved" id="key-saved">Key saved</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Add site -->
+  <div class="section">
+    <div class="section-label">Monitored Sites</div>
+    <div class="add-row">
+      <input class="site-input" type="text" id="site-input" placeholder="instagram.com" onkeydown="handleSiteKey(event)"/>
+      <button class="add-btn" onclick="addSite()">+</button>
+    </div>
+  </div>
+
+  <!-- Sites list -->
+  <div class="sites-list" id="sites-list">
+    <div class="empty-state" id="empty-state">No sites added yet.</div>
+  </div>
+
+</div>
+
+<script>
+// ── Ghost shapes canvas ────────────────────────────────
+const canvas = document.getElementById('popup-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, shapes = [];
+const COLORS = ['#B9D1EB', '#F876DE'];
+
+function resizeCanvas() {
+  W = canvas.width = document.documentElement.offsetWidth || 420;
+  H = canvas.height = document.documentElement.scrollHeight || 560;
+}
+
+function hexAlpha(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function makeShape(i) {
+  const types = ['circle','square','rectangle','circle','square'];
+  const type = types[i % types.length];
+  const color = COLORS[i % 2];
+  const size = 120 + Math.random() * 160;
+  const x = Math.random() * (W || 420);
+  const y = Math.random() * (H || 560);
+  const speed = 0.02 + Math.random() * 0.04;
+  const angle = Math.random() * Math.PI * 2;
+  return {
+    type, color, size, x, y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    rotation: Math.random() * Math.PI * 2,
+    vr: (Math.random() - 0.5) * 0.0002,
+    phase: Math.random() * Math.PI * 2,
+    aspect: type === 'rectangle' ? 0.5 + Math.random() * 0.4 : 1
+  };
+}
+
+function drawShape(s, t) {
+  const opacity = 0.22 + 0.08 * Math.sin(s.phase + t * 0.0004);
+  ctx.save();
+  ctx.translate(s.x, s.y);
+  ctx.rotate(s.rotation);
+  ctx.lineWidth = 0.7;
+  ctx.strokeStyle = hexAlpha(s.color, opacity);
+  ctx.shadowColor = s.color;
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  if (s.type === 'circle') {
+    ctx.arc(0, 0, s.size / 2, 0, Math.PI * 2);
+  } else if (s.type === 'square') {
+    const h = s.size / 2;
+    ctx.rect(-h, -h, s.size, s.size);
+  } else {
+    const hw = s.size / 2, hh = (s.size * s.aspect) / 2;
+    ctx.rect(-hw, -hh, s.size, s.size * s.aspect);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 14;
+  ctx.globalAlpha = 0.35;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function animateCanvas(t = 0) {
+  requestAnimationFrame(animateCanvas);
+  ctx.clearRect(0, 0, W, H);
+  shapes.forEach(s => {
+    s.x += s.vx; s.y += s.vy; s.rotation += s.vr;
+    const pad = s.size;
+    if (s.x > W + pad) s.x = -pad;
+    if (s.x < -pad) s.x = W + pad;
+    if (s.y > H + pad) s.y = -pad;
+    if (s.y < -pad) s.y = H + pad;
+    drawShape(s, t);
+  });
+}
+
+resizeCanvas();
+shapes = Array.from({ length: 6 }, (_, i) => makeShape(i));
+animateCanvas();
+
+// ── Storage ────────────────────────────────────────────
+let sites = [];
+
+async function load() {
+  const data = await chrome.storage.local.get(['sites', 'apiKey']);
+  sites = data.sites || [];
+  if (data.apiKey) {
+    document.getElementById('key-input').value = data.apiKey;
+  }
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('sites-list');
+  const empty = document.getElementById('empty-state');
+
+  // Remove existing rows (keep empty state)
+  list.querySelectorAll('.site-row').forEach(r => r.remove());
+
+  if (sites.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  sites.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'site-row';
+
+    const name = document.createElement('div');
+    name.className = 'site-name';
+    name.textContent = s.domain;
+
+    const toggleWrap = document.createElement('div');
+    toggleWrap.className = 'toggle-wrap';
+
+    const label = document.createElement('div');
+    label.className = 'toggle-label';
+    label.textContent = 'Full Block';
+
+    const toggle = document.createElement('div');
+    toggle.className = 'toggle' + (s.fullBlock ? ' on' : '');
+
+    const knob = document.createElement('div');
+    knob.className = 'toggle-knob';
+    toggle.appendChild(knob);
+
+    toggle.addEventListener('click', () => {
+      sites[i].fullBlock = !sites[i].fullBlock;
+      toggle.classList.toggle('on', sites[i].fullBlock);
+      chrome.storage.local.set({ sites });
+    });
+
+    toggleWrap.appendChild(label);
+    toggleWrap.appendChild(toggle);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => {
+      sites.splice(i, 1);
+      chrome.storage.local.set({ sites });
+      renderList();
+    });
+
+    row.appendChild(name);
+    row.appendChild(toggleWrap);
+    row.appendChild(removeBtn);
+    list.appendChild(row);
+  });
+
+  // Resize canvas after render
+  setTimeout(() => { resizeCanvas(); }, 100);
+}
+
+function saveKey() {
+  const val = document.getElementById('key-input').value.trim();
+  if (!val) return;
+  chrome.storage.local.set({ apiKey: val });
+  const saved = document.getElementById('key-saved');
+  saved.classList.add('show');
+  setTimeout(() => saved.classList.remove('show'), 2000);
+}
+
+function handleSiteKey(e) {
+  if (e.key === 'Enter') addSite();
+}
+
+function addSite() {
+  const input = document.getElementById('site-input');
+  let val = input.value.trim().toLowerCase();
+  if (!val) return;
+  val = val.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+  if (!val) return;
+  if (sites.find(s => s.domain === val)) {
+    input.value = '';
+    return;
+  }
+  sites.push({ domain: val, fullBlock: false });
+  chrome.storage.local.set({ sites });
+  input.value = '';
+  renderList();
+}
+
+load();
+</script>
+</body>
+</html>
