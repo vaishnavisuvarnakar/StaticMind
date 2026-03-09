@@ -7,3 +7,6 @@ Install: Download ZIP → extract → chrome://extensions → Enable Developer M
 
 Black UI, Turkish Wedding gradient (#B9D1EB → #F876DE), Century Gothic in the extension, Outfit on the chatpage, slow glowing geometric shapes throughout.
 Conceptualised and designed by Vaishnavi Suvarnakar, first year student. Feedback and bug reports welcome ,please star ⭐ if you appriciate the idea and implementation— open an issue! If you build on this, a shoutout goes a long way.
+
+
+API Credits: StaticMind uses the Anthropic Claude API (BYOK). Add $5 to your Anthropic console — at Haiku pricing this lasts thousands of conversations. 
