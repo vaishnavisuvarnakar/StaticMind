@@ -16,18 +16,88 @@
   if (matched.fullBlock) {
     document.documentElement.innerHTML = '';
     document.body = document.createElement('body');
-    document.body.style.cssText = 'background:#000;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;';
+    document.body.style.cssText = 'background:#020005;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;';
+
+    // Create a more visually striking full block page
+    const container = document.createElement('div');
+    container.style.cssText = 'text-align:center;position:relative;';
+
+    // Ambient glow
+    const glow = document.createElement('div');
+    glow.style.cssText = `
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+    `;
+    const orb1 = document.createElement('div');
+    orb1.style.cssText = `
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: #B9D1EB; filter: blur(120px); opacity: 0.06;
+      top: -150px; right: -100px;
+      animation: orbFloat 16s ease-in-out infinite alternate;
+    `;
+    const orb2 = document.createElement('div');
+    orb2.style.cssText = `
+      position: absolute; width: 350px; height: 350px; border-radius: 50%;
+      background: #F876DE; filter: blur(120px); opacity: 0.05;
+      bottom: -120px; left: -80px;
+      animation: orbFloat 20s ease-in-out infinite alternate-reverse;
+    `;
+    glow.appendChild(orb1);
+    glow.appendChild(orb2);
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&display=swap');
+      @keyframes orbFloat {
+        0% { transform: translate(0,0) scale(1); }
+        50% { transform: translate(30px,-20px) scale(1.1); }
+        100% { transform: translate(-20px,15px) scale(0.95); }
+      }
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes breathe {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.8; }
+      }
+    `;
+
+    const wordmark = document.createElement('div');
+    wordmark.style.cssText = `
+      font-family: 'Outfit', 'Century Gothic', sans-serif;
+      font-weight: 700; font-size: 11px; letter-spacing: 5px;
+      text-transform: uppercase; margin-bottom: 28px;
+      background: linear-gradient(90deg, #B9D1EB, #F876DE);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.6s ease both;
+    `;
+    wordmark.textContent = 'STATICMIND';
+
     const msg = document.createElement('div');
     msg.style.cssText = `
-      font-family: 'Century Gothic', sans-serif;
-      font-weight: 700;
-      font-size: 26px;
-      color: #B9D1EB;
-      text-align: center;
-      letter-spacing: 2px;
+      font-family: 'Outfit', 'Century Gothic', sans-serif;
+      font-weight: 700; font-size: 28px; color: #e8e4df;
+      letter-spacing: 1px; line-height: 1.4;
+      animation: fadeUp 0.6s ease both 0.15s; opacity: 0;
     `;
-    msg.textContent = 'FULL BLOCK ENABLED';
-    document.body.appendChild(msg);
+    msg.textContent = 'Full Block Enabled';
+
+    const sub = document.createElement('div');
+    sub.style.cssText = `
+      font-family: 'Outfit', 'Century Gothic', sans-serif;
+      font-weight: 500; font-size: 14px; color: #6a6560;
+      margin-top: 12px; letter-spacing: 0.3px;
+      animation: fadeUp 0.6s ease both 0.3s; opacity: 0;
+    `;
+    sub.textContent = 'This site is blocked. You chose this.';
+
+    container.appendChild(wordmark);
+    container.appendChild(msg);
+    container.appendChild(sub);
+    document.body.appendChild(style);
+    document.body.appendChild(glow);
+    document.body.appendChild(container);
     return;
   }
 
@@ -49,6 +119,8 @@ function injectOverlay(domain) {
 
   shadow.innerHTML = `
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :host { all: initial; }
@@ -56,11 +128,11 @@ function injectOverlay(domain) {
       .sm-overlay {
         position: fixed;
         inset: 0;
-        background: #000000;
+        background: #020005;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+        font-family: 'Outfit', 'Century Gothic', 'AppleGothic', sans-serif;
         font-weight: 700;
         overflow: hidden;
       }
@@ -71,79 +143,198 @@ function injectOverlay(domain) {
         pointer-events: none;
       }
 
+      /* Ambient aurora orbs */
+      .sm-aurora {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .sm-aurora .sm-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        animation: smOrbDrift 18s ease-in-out infinite alternate;
+      }
+
+      .sm-aurora .sm-orb:nth-child(1) {
+        width: 450px; height: 450px;
+        background: #B9D1EB;
+        opacity: 0.06;
+        top: -180px; right: -120px;
+      }
+
+      .sm-aurora .sm-orb:nth-child(2) {
+        width: 380px; height: 380px;
+        background: #F876DE;
+        opacity: 0.05;
+        bottom: -150px; left: -100px;
+        animation-delay: -9s;
+        animation-duration: 22s;
+      }
+
+      .sm-aurora .sm-orb:nth-child(3) {
+        width: 250px; height: 250px;
+        background: linear-gradient(135deg, #B9D1EB, #F876DE);
+        opacity: 0.03;
+        top: 45%; left: 45%;
+        animation-delay: -4s;
+        animation-duration: 16s;
+      }
+
+      @keyframes smOrbDrift {
+        0%   { transform: translate(0, 0) scale(1); }
+        33%  { transform: translate(35px, -25px) scale(1.08); }
+        66%  { transform: translate(-25px, 35px) scale(0.94); }
+        100% { transform: translate(15px, -15px) scale(1.03); }
+      }
+
+      /* Floating CSS particles */
+      .sm-particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .sm-mote {
+        position: absolute;
+        width: 2px; height: 2px;
+        border-radius: 50%;
+        opacity: 0;
+        animation: smMoteDrift 11s ease-in-out infinite;
+      }
+
+      .sm-mote:nth-child(1) { left: 10%; top: 20%; background: #B9D1EB; animation-delay: 0s; }
+      .sm-mote:nth-child(2) { left: 35%; top: 65%; background: #F876DE; animation-delay: 2.5s; }
+      .sm-mote:nth-child(3) { left: 70%; top: 30%; background: #B9D1EB; animation-delay: 5s; }
+      .sm-mote:nth-child(4) { left: 85%; top: 75%; background: #F876DE; animation-delay: 1.5s; }
+      .sm-mote:nth-child(5) { left: 50%; top: 15%; background: #B9D1EB; animation-delay: 4s; }
+      .sm-mote:nth-child(6) { left: 20%; top: 85%; background: #F876DE; animation-delay: 7s; }
+
+      @keyframes smMoteDrift {
+        0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+        15%  { opacity: 0.5; }
+        50%  { opacity: 0.2; transform: translateY(-40px) scale(1.6); }
+        85%  { opacity: 0.45; }
+      }
+
       .sm-card {
         position: relative;
         z-index: 10;
-        background: rgba(6, 4, 10, 0.88);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-radius: 6px;
+        background: rgba(6, 4, 12, 0.82);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 18px;
         padding: 52px 52px 44px;
         max-width: 520px;
         width: calc(100vw - 48px);
         text-align: center;
-        border: 1px solid rgba(185, 209, 235, 0.15);
+        border: 1px solid rgba(185, 209, 235, 0.08);
+        animation: smCardReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation-delay: 0.1s;
+      }
+
+      @keyframes smCardReveal {
+        from { opacity: 0; transform: translateY(30px) scale(0.94); filter: blur(6px); }
+        to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
       }
 
       .sm-card::before {
         content: '';
         position: absolute;
         inset: 0;
-        border-radius: 6px;
-        padding: 1.5px;
-        background: linear-gradient(135deg, #B9D1EB, #F876DE);
+        border-radius: 18px;
+        padding: 1px;
+        background: linear-gradient(135deg, #B9D1EB, #F876DE, #B9D1EB);
+        background-size: 200% 200%;
+        animation: smBorderGradient 6s ease infinite;
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         pointer-events: none;
+        opacity: 0.5;
+      }
+
+      @keyframes smBorderGradient {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Top edge highlight */
+      .sm-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 15%; right: 15%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(185,209,235,0.2), transparent);
+        pointer-events: none;
+        border-radius: 1px;
       }
 
       .sm-wordmark {
-        font-size: 12px;
-        letter-spacing: 4px;
+        font-size: 11px;
+        letter-spacing: 5px;
         text-transform: uppercase;
         background: linear-gradient(90deg, #B9D1EB, #F876DE);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 36px;
+        margin-bottom: 32px;
         display: block;
+        font-weight: 700;
+        animation: smTextReveal 0.6s ease both 0.3s;
+        opacity: 0;
+      }
+
+      @keyframes smTextReveal {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
 
       .sm-headline {
-        font-size: 34px;
+        font-size: 32px;
         font-weight: 700;
         color: #ffffff;
-        line-height: 1.2;
-        margin-bottom: 16px;
+        line-height: 1.25;
+        margin-bottom: 14px;
         letter-spacing: -0.3px;
+        animation: smTextReveal 0.6s ease both 0.4s;
+        opacity: 0;
       }
 
       .sm-subline {
-        font-size: 26px;
-        font-weight: 700;
-        color: rgba(232, 228, 223, 0.75);
-        line-height: 1.4;
-        margin-bottom: 40px;
+        font-size: 18px;
+        font-weight: 500;
+        color: rgba(232, 228, 223, 0.6);
+        line-height: 1.5;
+        margin-bottom: 36px;
+        animation: smTextReveal 0.6s ease both 0.5s;
+        opacity: 0;
       }
 
       .sm-timer-wrap {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 40px;
+        gap: 12px;
+        margin-bottom: 36px;
+        animation: smTextReveal 0.6s ease both 0.6s;
+        opacity: 0;
       }
 
       .sm-timer-ring {
-        width: 72px;
-        height: 72px;
+        width: 76px;
+        height: 76px;
         transform: rotate(-90deg);
+        filter: drop-shadow(0 0 8px rgba(185,209,235,0.15));
       }
 
       .sm-ring-bg {
         fill: none;
-        stroke: rgba(255,255,255,0.06);
+        stroke: rgba(255,255,255,0.04);
         stroke-width: 2.5;
       }
 
@@ -158,19 +349,27 @@ function injectOverlay(domain) {
       }
 
       .sm-timer-label {
-        font-size: 23px;
-        font-weight: 700;
-        color: rgba(232, 228, 223, 0.5);
+        font-size: 15px;
+        font-weight: 600;
+        color: rgba(232, 228, 223, 0.4);
         letter-spacing: 2px;
         text-transform: uppercase;
+        animation: smBreathe 5s ease-in-out infinite;
+      }
+
+      @keyframes smBreathe {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.7; }
       }
 
       .sm-choice {
-        font-size: 23px;
-        font-weight: 700;
-        color: rgba(232, 228, 223, 0.55);
-        margin-bottom: 24px;
+        font-size: 16px;
+        font-weight: 600;
+        color: rgba(232, 228, 223, 0.45);
+        margin-bottom: 22px;
         letter-spacing: 0.5px;
+        animation: smTextReveal 0.6s ease both 0.7s;
+        opacity: 0;
       }
 
       .sm-buttons {
@@ -178,50 +377,115 @@ function injectOverlay(domain) {
         gap: 14px;
         justify-content: center;
         flex-wrap: wrap;
+        animation: smTextReveal 0.6s ease both 0.8s;
+        opacity: 0;
       }
 
       .sm-btn {
-        font-family: 'Century Gothic', 'AppleGothic', sans-serif;
+        font-family: 'Outfit', 'Century Gothic', 'AppleGothic', sans-serif;
         font-weight: 700;
-        font-size: 23px;
+        font-size: 15px;
         padding: 14px 28px;
-        border-radius: 3px;
+        border-radius: 12px;
         border: none;
         cursor: pointer;
-        transition: opacity 0.2s, transform 0.2s;
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         letter-spacing: 0.3px;
+        position: relative;
+        overflow: hidden;
       }
 
       .sm-btn:disabled {
-        opacity: 0.25;
+        opacity: 0.2;
         cursor: not-allowed;
         transform: none !important;
+        box-shadow: none !important;
       }
 
       .sm-btn-continue {
-        background: transparent;
+        background: rgba(185, 209, 235, 0.06);
         color: #B9D1EB;
-        border: 1.5px solid rgba(185, 209, 235, 0.4);
+        border: 1.5px solid rgba(185, 209, 235, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
       }
 
       .sm-btn-continue:not(:disabled):hover {
-        border-color: #B9D1EB;
-        opacity: 0.85;
-        transform: translateY(-1px);
+        border-color: rgba(185, 209, 235, 0.5);
+        background: rgba(185, 209, 235, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px -6px rgba(185,209,235,0.2);
+      }
+
+      .sm-btn-continue:not(:disabled):active {
+        transform: translateY(0) scale(0.97);
       }
 
       .sm-btn-refocus {
-        background: linear-gradient(90deg, #B9D1EB, #F876DE);
+        background: linear-gradient(135deg, #B9D1EB, #F876DE);
+        background-size: 150% 150%;
         color: #000;
       }
 
+      .sm-btn-refocus::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        border-radius: 12px;
+      }
+
       .sm-btn-refocus:not(:disabled):hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px -6px rgba(248,118,222,0.3);
+      }
+
+      .sm-btn-refocus:not(:disabled):hover::after { opacity: 1; }
+
+      .sm-btn-refocus:not(:disabled):active {
+        transform: translateY(0) scale(0.97);
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 560px) {
+        .sm-card {
+          padding: 40px 28px 36px;
+          border-radius: 16px;
+        }
+        .sm-headline { font-size: 26px; }
+        .sm-subline { font-size: 16px; }
+        .sm-btn { font-size: 14px; padding: 12px 22px; }
+      }
+
+      @media (max-width: 380px) {
+        .sm-card {
+          padding: 32px 20px 28px;
+          width: calc(100vw - 24px);
+        }
+        .sm-headline { font-size: 22px; }
+        .sm-subline { font-size: 14px; }
+        .sm-buttons { flex-direction: column; gap: 10px; }
+        .sm-btn { width: 100%; }
       }
     </style>
 
     <div class="sm-overlay">
+      <div class="sm-aurora">
+        <div class="sm-orb"></div>
+        <div class="sm-orb"></div>
+        <div class="sm-orb"></div>
+      </div>
+      <div class="sm-particles">
+        <div class="sm-mote"></div>
+        <div class="sm-mote"></div>
+        <div class="sm-mote"></div>
+        <div class="sm-mote"></div>
+        <div class="sm-mote"></div>
+        <div class="sm-mote"></div>
+      </div>
       <canvas id="sm-canvas"></canvas>
 
       <div class="sm-card">
@@ -273,53 +537,81 @@ function injectOverlay(domain) {
   }
 
   function makeShape(i) {
-    const types = ['circle','square','rectangle','circle','square','rectangle','square','circle','rectangle'];
+    const types = ['circle','square','rectangle','triangle','circle','square','rectangle','triangle','circle'];
     const type = types[i % types.length];
     const color = COLORS[i % 2];
-    const size = 180 + Math.random() * 260;
+    const size = 150 + Math.random() * 280;
     const edge = Math.floor(Math.random() * 4);
     let x, y;
     if (edge === 0) { x = Math.random() * W; y = -size * 0.3; }
     else if (edge === 1) { x = W + size * 0.3; y = Math.random() * H; }
     else if (edge === 2) { x = Math.random() * W; y = H + size * 0.3; }
     else { x = -size * 0.3; y = Math.random() * H; }
-    const speed = 0.03 + Math.random() * 0.05;
+    const speed = 0.025 + Math.random() * 0.045;
     const angle = Math.random() * Math.PI * 2;
     return {
       type, color, size, x, y,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       rotation: Math.random() * Math.PI * 2,
-      vr: (Math.random() - 0.5) * 0.0003,
+      vr: (Math.random() - 0.5) * 0.0004,
       phase: Math.random() * Math.PI * 2,
       aspect: type === 'rectangle' ? 0.5 + Math.random() * 0.4 : 1
     };
   }
 
   function drawShape(s, t) {
-    const opacity = 0.28 + 0.1 * Math.sin(s.phase + t * 0.0004);
+    const opacity = 0.22 + 0.1 * Math.sin(s.phase + t * 0.0003);
     ctx.save();
     ctx.translate(s.x, s.y);
     ctx.rotate(s.rotation);
-    ctx.lineWidth = 0.8;
+    ctx.lineWidth = 0.6;
     ctx.strokeStyle = hexAlpha(s.color, opacity);
     ctx.shadowColor = s.color;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 12;
     ctx.beginPath();
     if (s.type === 'circle') {
       ctx.arc(0, 0, s.size / 2, 0, Math.PI * 2);
     } else if (s.type === 'square') {
       const h = s.size / 2;
       ctx.rect(-h, -h, s.size, s.size);
+    } else if (s.type === 'triangle') {
+      const r = s.size / 2;
+      ctx.moveTo(0, -r);
+      ctx.lineTo(r * 0.866, r * 0.5);
+      ctx.lineTo(-r * 0.866, r * 0.5);
+      ctx.closePath();
     } else {
       const hw = s.size / 2, hh = (s.size * s.aspect) / 2;
       ctx.rect(-hw, -hh, s.size, s.size * s.aspect);
     }
     ctx.stroke();
-    ctx.shadowBlur = 18;
-    ctx.globalAlpha = 0.4;
+    ctx.shadowBlur = 22;
+    ctx.globalAlpha = 0.3;
     ctx.stroke();
     ctx.restore();
+  }
+
+  // Connection lines between nearby shapes
+  function drawConnections(t) {
+    const maxDist = 300;
+    for (let i = 0; i < shapes.length; i++) {
+      for (let j = i + 1; j < shapes.length; j++) {
+        const dx = shapes[i].x - shapes[j].x;
+        const dy = shapes[i].y - shapes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < maxDist) {
+          const alpha = (1 - dist / maxDist) * 0.05;
+          const pulse = 0.5 + 0.5 * Math.sin(t * 0.0005 + i + j);
+          ctx.beginPath();
+          ctx.moveTo(shapes[i].x, shapes[i].y);
+          ctx.lineTo(shapes[j].x, shapes[j].y);
+          ctx.strokeStyle = hexAlpha(COLORS[(i + j) % 2], alpha * pulse);
+          ctx.lineWidth = 0.4;
+          ctx.stroke();
+        }
+      }
+    }
   }
 
   function animateCanvas(t = 0) {
@@ -334,10 +626,11 @@ function injectOverlay(domain) {
       if (s.y < -pad) s.y = H + pad;
       drawShape(s, t);
     });
+    drawConnections(t);
   }
 
   resize();
-  shapes = Array.from({ length: 9 }, (_, i) => makeShape(i));
+  shapes = Array.from({ length: 10 }, (_, i) => makeShape(i));
   animateCanvas();
   window.addEventListener('resize', resize);
 
